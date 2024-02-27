@@ -9,9 +9,8 @@ from .base import BaseBackend, StructuredOutput
 from .lm.litellm import LiteLLM
 
 
-class LiteLLMBackend(BaseBackend):
-    model: str
-    lm: LiteLLM = Field(default_factory=LiteLLM)
+class TemplateBackend(BaseBackend):
+    model: LiteLLM
 
     def __call__(
         self,
@@ -19,26 +18,7 @@ class LiteLLMBackend(BaseBackend):
         demos: t.List[str] = [],
         **kwargs,
     ) -> list[StructuredOutput]:
-        # does this model support tool use? use that
-        """
-        Create tool from signature output fields and pass as tool to use
-        json.loads tool_choice to create the
-        """
-
-        # does this model support JSON mode? use that
-        """
-        Define JSON format and pass as response_format
-        json.loads from the messages in the response
-        """
-
-        # otherwise, wrap in a Template and pass through to the LM
-        """
-        See existing code in dspy/predict/predict.py lines 80-87 & 98-108 for
-        how it's currently being done.
-        This needs to get modified because we want the signature and params to get
-        passed directly to ths Backend so we can do structured output using
-        tool use / JSON mode
-        """
+        """Wrap the signature and demos into an example, and pass through the Language Model, returning Signature Compliant Output"""
 
         # Assert that all necessary params are provided
         if not all(k in kwargs for k in signature.input_fields):
@@ -59,7 +39,7 @@ class LiteLLMBackend(BaseBackend):
         for input in signature.input_fields:
             del kwargs[input]
 
-        pred = self.lm(template(example), **kwargs)
+        pred = self.model(template(example), **kwargs)
 
         # This returns a list of Examples
         extracted = [template.extract(example, prediction) for prediction in pred]

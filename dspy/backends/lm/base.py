@@ -15,7 +15,7 @@ _cache_memory = Memory(_cachedir, verbose=0)
 class BaseLM(BaseModel, ABC):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._cached = _cache_memory.cache(self._call)
+        self._cached = _cache_memory.cache(self.forward)
 
     def __call__(self, prompt: str, **kwargs) -> list[str]:
         """Generates `n` predictions for the signature output."""
