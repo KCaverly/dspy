@@ -8,9 +8,7 @@ class BaseLM(BaseModel, ABC):
     def __call__(
         self,
         prompt: str,
-        temperature: float,
-        max_tokens: int,
-        n: int,
+        n: int = 1,
         **kwargs,
     ) -> list[str]:
         """Generates `n` predictions for the signature output."""
